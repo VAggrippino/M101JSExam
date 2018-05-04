@@ -1,0 +1,24 @@
+{
+  "name": "m101jsexam",
+  "version": "1.0.0",
+  "description": "The final exam for MongoDB University's M101JS course: MongoDB for Node.js Developers updated for current software / library versions",
+  "main": "mongomart.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VAggrippino/M101JSExam.git"
+  },
+  "keywords": [
+    "M101JS",
+    "mongodb",
+    "NodeJS"
+  ],
+  "author": "Vince Aggrippino",
+  "license": "Unlicense",
+  "bugs": {
+    "url": "https://github.com/VAggrippino/M101JSExam/issues"
+  },
+  "homepage": "https://github.com/VAggrippino/M101JSExam#readme"
+}
