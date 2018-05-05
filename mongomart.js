@@ -35,10 +35,11 @@ const ITEMS_PER_PAGE = 5;
 // Hardcoded USERID for use with the shopping cart portion
 const USERID = '558098a65133816958968d88';
 
-MongoClient.connect('mongodb://localhost:27017/mongomart', (err, db) => {
+MongoClient.connect('mongodb://localhost:27017/mongomart', (err, client) => {
   assert.equal(null, err);
   console.log('Successfully connected to MongoDB.');
 
+  const { db } = client;
   const items = new ItemDAO(db);
   const cart = new CartDAO(db);
 
