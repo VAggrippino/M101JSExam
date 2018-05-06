@@ -62,6 +62,7 @@ MongoClient.connect(`mongodb://localhost:27017/${dbName}`, (err, client) => {
     const page = req.query.page ? parseInt(req.query.page, 10) : 0;
     const category = req.query.category ? req.query.category : 'All';
 
+    // TODO: Fix callback hell here
     items.getCategories((categories) => {
       items.getItems(category, page, ITEMS_PER_PAGE, (pageItems) => {
         items.getNumItems(category, (itemCount) => {

@@ -32,8 +32,8 @@ function ItemDAO(db) {
       },
     ])
       .toArray()
-      .then((result) => {
-        const total = result.reduce((accumulator, category) => {
+      .then((results) => {
+        const total = results.reduce((accumulator, category) => {
           categories.push(category);
           return accumulator + category.num;
         }, 0);
@@ -59,42 +59,26 @@ function ItemDAO(db) {
       });
   };
 
-
   this.getItems = (category, page, itemsPerPage, callback) => {
-    /*
-         * TODO: -lab1B
-         *
-         * LAB #1B: Implement the getItems() method.
-         *
-         * Create a query on the "item" collection to select only the items
-         * that should be displayed for a particular page of a given category.
-         * The category is passed as a parameter to getItems().
-         *
-         * Use sort(), skip(), and limit() and the method parameters: page and
-         * itemsPerPage to identify the appropriate products to display on each
-         * page. Pass these items to the callback function.
-         *
-         * Sort items in ascending order based on the _id field. You must use
-         * this sort to answer the final project questions correctly.
-         *
-         * Note: Since "All" is not listed as the category for any items,
-         * you will need to query the "item" collection differently for "All"
-         * than you do for other categories.
-         *
-         */
+    const collection = this.db.collection('item');
+    let pageItems = [];
+    const query = (category === 'All') ? {} : { category };
+    const options = {
+      limit: itemsPerPage,
+      skip: (page > 0) ? (page - 1) * itemsPerPage : 0,
+      sort: { _id: 1 },
+    };
 
-    const pageItem = this.createDummyItem();
-    const pageItems = [];
-    for (let i = 0; i < 5; i += 1) {
-      pageItems.push(pageItem);
-    }
-
-    // TODO: lab1B Replace all code above (in this method).
-
-    // TODO: Include the following line in the appropriate
-    // place within your code to pass the items for the selected page
-    // to the callback.
-    callback(pageItems);
+    collection.find(query, options)
+      .toArray()
+      .then((results) => {
+        pageItems = results;
+        callback(pageItems);
+      })
+      .catch((error) => {
+        console.error(`An error occurred while retrieving page items for ${category}.`);
+        console.error(error.message);
+      });
   };
 
 
