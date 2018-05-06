@@ -65,7 +65,7 @@ function ItemDAO(db) {
     const query = (category === 'All') ? {} : { category };
     const options = {
       limit: itemsPerPage,
-      skip: (page > 0) ? (page - 1) * itemsPerPage : 0,
+      skip: page * itemsPerPage,
       sort: { _id: 1 },
     };
 
@@ -81,30 +81,12 @@ function ItemDAO(db) {
       });
   };
 
-
-  this.getNumItems = (category, callback) => {
-    const numItems = 0;
-
-    /*
-         * TODO: lab1C:
-         *
-         * LAB #1C: Implement the getNumItems method()
-         *
-         * Write a query that determines the number of items in a category
-         * and pass the count to the callback function. The count is used in
-         * the mongomart application for pagination. The category is passed
-         * as a parameter to this method.
-         *
-         * See the route handler for the root path (i.e. "/") for an example
-         * of a call to the getNumItems() method.
-         *
-         */
-
-    // TODO: Include the following line in the appropriate
-    // place within your code to pass the count to the callback.
+  this.getNumItems = async (category, callback) => {
+    const collection = this.db.collection('item');
+    const match = (category === 'All') ? {} : { category };
+    const numItems = await collection.find(match).count();
     callback(numItems);
   };
-
 
   this.searchItems = (query, page, itemsPerPage, callback) => {
     /*
