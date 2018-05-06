@@ -113,8 +113,6 @@ MongoClient.connect(`mongodb://localhost:27017/${dbName}`, (err, client) => {
     const itemId = parseInt(req.params.itemId, 10);
 
     items.getItem(itemId, (item) => {
-      console.log(item);
-
       if (item == null) {
         res.status(404).send('Item not found.');
         return;
@@ -134,7 +132,7 @@ MongoClient.connect(`mongodb://localhost:27017/${dbName}`, (err, client) => {
 
         if (numReviews > 0) {
           stars /= numReviews;
-          [reviews] = item;
+          ({ reviews } = item);
         }
       }
 
