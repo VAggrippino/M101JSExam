@@ -81,7 +81,7 @@ function ItemDAO(db) {
     const collection = this.db.collection('item');
     const match = (category === 'All') ? {} : { category };
     const numItems = await collection.find(match).count();
-    callback(numItems);
+    return callback(numItems);
   };
 
   this.searchItems = (query, page, itemsPerPage, callback) => {
@@ -102,23 +102,10 @@ function ItemDAO(db) {
   };
 
 
-  this.getNumSearchItems = (query, callback) => {
-    const numItems = 0;
-
-    /*
-        * TODO: lab2B
-        *
-        * LAB #2B: Using the value of the query parameter passed to this
-        * method, count the number of items in the "item" collection matching
-        * a text search. Pass the count to the callback function.
-        *
-        * getNumSearchItems() depends on the same text index as searchItems().
-        * Before implementing this method, ensure that you've already created
-        * a SINGLE text index on title, slogan, and description. You should
-        * simply do this in the mongo shell.
-        */
-
-    callback(numItems);
+  this.getNumSearchItems = async (query, callback) => {
+    const collection = this.db.collection('item');
+    const numItems = await collection.find({ $text: { $search: query } }).count();
+    return callback(numItems);
   };
 
 
