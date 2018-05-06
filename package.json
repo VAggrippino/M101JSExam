@@ -4,7 +4,9 @@
   "description": "The final exam for MongoDB University's M101JS course: MongoDB for Node.js Developers updated for current software / library versions",
   "main": "mongomart.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node mongomart.js",
+    "devstart": "nodemon mongomart.js"
   },
   "repository": {
     "type": "git",
