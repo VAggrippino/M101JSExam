@@ -7,6 +7,8 @@ const assert = require('assert');
 const { ItemDAO } = require('./items');
 const { CartDAO } = require('./cart');
 
+const dbName = 'mongomart';
+
 // Set up express
 const app = express();
 app.set('view engine', 'html');
@@ -35,11 +37,11 @@ const ITEMS_PER_PAGE = 5;
 // Hardcoded USERID for use with the shopping cart portion
 const USERID = '558098a65133816958968d88';
 
-MongoClient.connect('mongodb://localhost:27017/mongomart', (err, client) => {
+MongoClient.connect(`mongodb://localhost:27017/${dbName}`, (err, client) => {
   assert.equal(null, err);
   console.log('Successfully connected to MongoDB.');
 
-  const { db } = client;
+  const db = client.db(dbName);
   const items = new ItemDAO(db);
   const cart = new CartDAO(db);
 
