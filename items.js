@@ -20,7 +20,7 @@ function ItemDAO(db) {
   this.db = db;
 
   this.getCategories = (callback) => {
-    const collection = db.collection('item');
+    const collection = this.db.collection('item');
     const categories = [];
 
     collection.aggregate([
@@ -62,7 +62,7 @@ function ItemDAO(db) {
 
   this.getItems = (category, page, itemsPerPage, callback) => {
     /*
-         * TODO-lab1B
+         * TODO: -lab1B
          *
          * LAB #1B: Implement the getItems() method.
          *
@@ -89,9 +89,9 @@ function ItemDAO(db) {
       pageItems.push(pageItem);
     }
 
-    // TODO-lab1B Replace all code above (in this method).
+    // TODO: lab1B Replace all code above (in this method).
 
-    // TODO Include the following line in the appropriate
+    // TODO: Include the following line in the appropriate
     // place within your code to pass the items for the selected page
     // to the callback.
     callback(pageItems);
@@ -102,7 +102,7 @@ function ItemDAO(db) {
     const numItems = 0;
 
     /*
-         * TODO-lab1C:
+         * TODO: lab1C:
          *
          * LAB #1C: Implement the getNumItems method()
          *
@@ -116,7 +116,7 @@ function ItemDAO(db) {
          *
          */
 
-    // TODO Include the following line in the appropriate
+    // TODO: Include the following line in the appropriate
     // place within your code to pass the count to the callback.
     callback(numItems);
   };
@@ -124,7 +124,7 @@ function ItemDAO(db) {
 
   this.searchItems = (query, page, itemsPerPage, callback) => {
     /*
-         * TODO-lab2A
+         * TODO: lab2A
          *
          * LAB #2A: Implement searchItems()
          *
@@ -153,9 +153,9 @@ function ItemDAO(db) {
       items.push(item);
     }
 
-    // TODO-lab2A Replace all code above (in this method).
+    // TODO: lab2A Replace all code above (in this method).
 
-    // TODO Include the following line in the appropriate
+    // TODO: Include the following line in the appropriate
     // place within your code to pass the items for the selected page
     // of search results to the callback.
     callback(items);
@@ -166,7 +166,7 @@ function ItemDAO(db) {
     const numItems = 0;
 
     /*
-        * TODO-lab2B
+        * TODO: lab2B
         *
         * LAB #2B: Using the value of the query parameter passed to this
         * method, count the number of items in the "item" collection matching
@@ -184,7 +184,7 @@ function ItemDAO(db) {
 
   this.getItem = (itemId, callback) => {
     /*
-         * TODO-lab3
+         * TODO: lab3
          *
          * LAB #3: Implement the getItem() method.
          *
@@ -195,9 +195,9 @@ function ItemDAO(db) {
 
     const item = this.createDummyItem();
 
-    // TODO-lab3 Replace all code above (in this method).
+    // TODO: lab3 Replace all code above (in this method).
 
-    // TODO Include the following line in the appropriate
+    // TODO: Include the following line in the appropriate
     // place within your code to pass the matching item
     // to the callback.
     callback(item);
@@ -216,7 +216,7 @@ function ItemDAO(db) {
 
   this.addReview = (itemId, comment, name, stars, callback) => {
     /*
-         * TODO-lab4
+         * TODO: lab4
          *
          * LAB #4: Implement addReview().
          *
@@ -234,12 +234,12 @@ function ItemDAO(db) {
       date: Date.now(),
     };
 
-    // TODO replace the following two lines with your code that will
+    // TODO: replace the following two lines with your code that will
     // update the document with a new review.
     const doc = this.createDummyItem();
     doc.reviews = [reviewDoc];
 
-    // TODO Include the following line in the appropriate
+    // TODO: Include the following line in the appropriate
     // place within your code to pass the updated doc to the
     // callback.
     callback(doc);
