@@ -109,7 +109,6 @@ MongoClient.connect(`mongodb://localhost:27017/${dbName}`, (err, client) => {
     });
   });
 
-
   router.get('/item/:itemId', (req, res) => {
     const itemId = parseInt(req.params.itemId, 10);
 

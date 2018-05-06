@@ -61,7 +61,6 @@ function ItemDAO(db) {
 
   this.getItems = (category, page, itemsPerPage, callback) => {
     const collection = this.db.collection('item');
-    let pageItems = [];
     const query = (category === 'All') ? {} : { category };
     const options = {
       limit: itemsPerPage,
@@ -71,10 +70,7 @@ function ItemDAO(db) {
 
     collection.find(query, options)
       .toArray()
-      .then((results) => {
-        pageItems = results;
-        callback(pageItems);
-      })
+      .then(results => callback(results))
       .catch((error) => {
         console.error(`An error occurred while retrieving page items for ${category}.`);
         console.error(error.message);
@@ -113,18 +109,20 @@ function ItemDAO(db) {
          *
          */
 
-    const item = this.createDummyItem();
-    const items = [];
-    for (let i = 0; i < 5; i += 1) {
-      items.push(item);
-    }
+    const collection = this.db.collection('item');
+    const options = {
+      limit: itemsPerPage,
+      skip: page * itemsPerPage,
+      sort: { _id: 1 },
+    };
 
-    // TODO: lab2A Replace all code above (in this method).
-
-    // TODO: Include the following line in the appropriate
-    // place within your code to pass the items for the selected page
-    // of search results to the callback.
-    callback(items);
+    collection.find({ $text: { $search: query } }, options)
+      .toArray()
+      .then(results => callback(results))
+      .catch((error) => {
+        console.error('An error occurred while searching records.');
+        console.error(error.message);
+      });
   };
 
 
