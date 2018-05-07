@@ -18,9 +18,8 @@
 const { MongoClient } = require('mongodb');
 const assert = require('assert');
 
-function CartDAO(database) {
-  this.db = database;
-
+function CartDAO(db) {
+  this.collection = db.collection('cart');
 
   this.getCart = (userId, callback) => {
     /*
