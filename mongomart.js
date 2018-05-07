@@ -137,7 +137,6 @@ MongoClient.connect(`mongodb://localhost:27017/${dbName}`, (err, client) => {
       }
 
       items.getRelatedItems((relatedItems) => {
-        console.log(relatedItems);
         res.render(
           'item',
           {
@@ -209,16 +208,16 @@ MongoClient.connect(`mongodb://localhost:27017/${dbName}`, (err, client) => {
       );
     };
 
-    cart.itemInCart(userId, itemId, (item) => {
-      if (item == null) {
+    cart.itemInCart(userId, itemId, (cartItem) => {
+      if (cartItem == null) {
         items.getItem(itemId, (item) => {
-          item.quantity = 1;
-          cart.addItem(userId, item, (userCart) => {
+          const newItem = Object.assign({ quantity: 1 }, item);
+          cart.addItem(userId, newItem, (userCart) => {
             renderCart(userCart);
           });
         });
       } else {
-        cart.updateQuantity(userId, itemId, item.quantity + 1, (userCart) => {
+        cart.updateQuantity(userId, itemId, cartItem.quantity + 1, (userCart) => {
           renderCart(userCart);
         });
       }
