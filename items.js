@@ -96,12 +96,10 @@ function ItemDAO(db) {
       });
   };
 
-
   this.getNumSearchItems = async (query, callback) => {
     const numItems = await this.collection.find({ $text: { $search: query } }).count();
     return callback(numItems);
   };
-
 
   this.getItem = async (itemId, callback) => {
     this.collection.findOne({ _id: itemId })
@@ -112,7 +110,6 @@ function ItemDAO(db) {
       });
   };
 
-
   this.getRelatedItems = (callback) => {
     this.collection.find({})
       .limit(4)
@@ -122,20 +119,7 @@ function ItemDAO(db) {
       });
   };
 
-
   this.addReview = (itemId, comment, name, stars, callback) => {
-    /*
-         * TODO: lab4
-         *
-         * LAB #4: Implement addReview().
-         *
-         * Using the itemId parameter, update the appropriate document in the
-         * "item" collection with a new review. Reviews are stored as an
-         * array value for the key "reviews". Each review has the fields:
-         * "name", "comment", "stars", and "date".
-         *
-         */
-
     const reviewDoc = {
       name,
       comment,
@@ -143,17 +127,13 @@ function ItemDAO(db) {
       date: Date.now(),
     };
 
-    // TODO: replace the following two lines with your code that will
-    // update the document with a new review.
-    const doc = this.createDummyItem();
-    doc.reviews = [reviewDoc];
-
-    // TODO: Include the following line in the appropriate
-    // place within your code to pass the updated doc to the
-    // callback.
-    callback(doc);
+    this.collection.findOneAndUpdate(
+      { _id: itemId },
+      { $push: { reviews: reviewDoc } },
+      { returnOriginal: false },
+    )
+      .then(doc => callback(doc));
   };
-
 
   this.createDummyItem = () => {
     const item = {
