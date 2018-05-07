@@ -14,8 +14,6 @@
   limitations under the License.
 */
 
-
-const { MongoClient } = require('mongodb');
 const assert = require('assert');
 
 function CartDAO(db) {
