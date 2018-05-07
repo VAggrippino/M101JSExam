@@ -20,29 +20,13 @@ function CartDAO(db) {
   this.collection = db.collection('cart');
 
   this.getCart = (userId, callback) => {
-    /*
-        * TODO-lab5
-        *
-        * LAB #5: Implement the getCart() method.
-        *
-        * Query the "cart" collection by userId and pass the cart to the
-        * callback function.
-        *
-        */
-
-    const userCart = {
-      userId,
-      items: [],
-    };
-    const dummyItem = this.createDummyItem();
-    userCart.items.push(dummyItem);
-
-    // TODO-lab5 Replace all code above (in this method).
-
-    // TODO Include the following line in the appropriate
-    // place within your code to pass the userCart to the
-    // callback.
-    callback(userCart);
+    const options = { projection: { userId: 1, items: 1, _id: 0 } };
+    this.collection.findOne({ userId }, options)
+      .then(userCart => callback(userCart))
+      .catch((error) => {
+        console.log("An error occurred while retrieving users's cart data.");
+        console.log(error);
+      });
   };
 
 
