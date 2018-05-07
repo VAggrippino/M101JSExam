@@ -101,7 +101,7 @@ function ItemDAO(db) {
     return callback(numItems);
   };
 
-  this.getItem = async (itemId, callback) => {
+  this.getItem = (itemId, callback) => {
     this.collection.findOne({ _id: itemId })
       .then(results => callback(results))
       .catch((error) => {
