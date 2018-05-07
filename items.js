@@ -17,13 +17,12 @@
 const assert = require('assert');
 
 function ItemDAO(db) {
-  this.db = db;
+  this.collection = db.collection('item');
 
   this.getCategories = (callback) => {
-    const collection = this.db.collection('item');
     const categories = [];
 
-    collection.aggregate([
+    this.collection.aggregate([
       {
         $group: {
           _id: '$category',
@@ -60,7 +59,6 @@ function ItemDAO(db) {
   };
 
   this.getItems = (category, page, itemsPerPage, callback) => {
-    const collection = this.db.collection('item');
     const query = (category === 'All') ? {} : { category };
     const options = {
       limit: itemsPerPage,
@@ -68,7 +66,7 @@ function ItemDAO(db) {
       sort: { _id: 1 },
     };
 
-    collection.find(query, options)
+    this.collection.find(query, options)
       .toArray()
       .then(results => callback(results))
       .catch((error) => {
@@ -78,22 +76,19 @@ function ItemDAO(db) {
   };
 
   this.getNumItems = async (category, callback) => {
-    const collection = this.db.collection('item');
     const match = (category === 'All') ? {} : { category };
-    const numItems = await collection.find(match).count();
+    const numItems = await this.collection.find(match).count();
     return callback(numItems);
   };
 
   this.searchItems = (query, page, itemsPerPage, callback) => {
-    const collection = this.db.collection('item');
     const options = {
       limit: itemsPerPage,
       skip: page * itemsPerPage,
       sort: { _id: 1 },
     };
 
-    collection.find({ $text: { $search: query } }, options)
-      .toArray()
+    this.collection.findOne({ $text: { $search: query } }, options)
       .then(results => callback(results))
       .catch((error) => {
         console.error('An error occurred while searching records.');
@@ -103,36 +98,23 @@ function ItemDAO(db) {
 
 
   this.getNumSearchItems = async (query, callback) => {
-    const collection = this.db.collection('item');
-    const numItems = await collection.find({ $text: { $search: query } }).count();
+    const numItems = await this.collection.find({ $text: { $search: query } }).count();
     return callback(numItems);
   };
 
 
-  this.getItem = (itemId, callback) => {
-    /*
-         * TODO: lab3
-         *
-         * LAB #3: Implement the getItem() method.
-         *
-         * Using the itemId parameter, query the "item" collection by
-         * _id and pass the matching item to the callback function.
-         *
-         */
-
-    const item = this.createDummyItem();
-
-    // TODO: lab3 Replace all code above (in this method).
-
-    // TODO: Include the following line in the appropriate
-    // place within your code to pass the matching item
-    // to the callback.
-    callback(item);
+  this.getItem = async (itemId, callback) => {
+    this.collection.findOne({ _id: itemId })
+      .then(results => callback(results))
+      .catch((error) => {
+        console.error(`An error occurred when retrieving item ${itemId}`);
+        console.error(error);
+      });
   };
 
 
   this.getRelatedItems = (callback) => {
-    this.db.collection('item').find({})
+    this.collection.find({})
       .limit(4)
       .toArray((err, relatedItems) => {
         assert.equal(null, err);
