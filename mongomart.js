@@ -153,23 +153,21 @@ MongoClient.connect(`mongodb://localhost:27017/${dbName}`, (err, client) => {
     });
   });
 
-
   router.post('/item/:itemId/reviews', (req, res) => {
     const itemId = parseInt(req.params.itemId, 10);
     const { review, name } = req.body;
     const stars = parseInt(req.body.stars, 10);
 
-    items.addReview(itemId, review, name, stars, (itemDoc) => {
+    items.addReview(itemId, review, name, stars, () => {
       res.redirect(`/item/${itemId}`);
     });
   });
 
-
   /*
      *
-     * Since we are not maintaining user sessions in this application, any interactions with
-     * the cart will be based on a single cart associated with the the USERID constant we have
-     * defined above.
+     * Since we are not maintaining user sessions in this application, any
+     * interactions with the cart will be based on a single cart associated
+     * with the the USERID constant we have defined above.
      *
      */
   router.get('/cart', (req, res) => {
