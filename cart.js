@@ -24,43 +24,27 @@ function CartDAO(db) {
     this.collection.findOne({ userId }, options)
       .then(userCart => callback(userCart))
       .catch((error) => {
-        console.log("An error occurred while retrieving users's cart data.");
-        console.log(error);
+        console.error("An error occurred while retrieving users's cart data.");
+        console.error(error);
       });
   };
 
-
   this.itemInCart = (userId, itemId, callback) => {
-    /*
-         *
-         * TODO-lab6
-         *
-         * LAB: #6
-         *
-         * Write a query that will determine whether or not the cart associated
-         * with the userId contains an item identified by itemId. If the cart
-         * does contain the item, pass the item to the callback. If it does not,
-         * pass the value null to the callback.
-         *
-         * NOTE: You should pass only the matching item to the callback. Do not
-         * pass an array of one or more items or the entire cart.
-         *
-         * SUGGESTION: While it is not necessary, you might find it easier to
-         * use the $ operator in a projection document in your call to find() as
-         * a means of selecting the matching item. Again, take care to pass only
-         * the matching item (not an array) to the callback. See:
-         * https://docs.mongodb.org/manual/reference/operator/projection/positional/
-         *
-         * As context for this method to better understand its purpose, look at
-         * how cart.itemInCart is used in the mongomart.js app.
-         *
-         */
-
-    callback(null);
-
-    // TODO-lab6 Replace all code above (in this method).
+    this.collection.findOne({ userId, 'items._id': itemId })
+      .then((cart) => {
+        if (cart === null) {
+          callback(null);
+        } else {
+          // eslint-disable-next-line no-underscore-dangle
+          const item = cart.items.filter(cartItem => cartItem._id === itemId)[0];
+          callback(item);
+        }
+      })
+      .catch((error) => {
+        console.error('An error occurred while checking cart item');
+        console.error(error);
+      });
   };
-
 
   /*
      * This solution is provide as an example to you of several query
@@ -82,7 +66,7 @@ function CartDAO(db) {
      */
   this.addItem = (userId, item, callback) => {
     // Will update the first document found matching the query document.
-    this.db.collection('cart').findOneAndUpdate(
+    this.collection.findOneAndUpdate(
       // query for the cart with the userId passed as a parameter.
       { userId },
       // update the user's cart by pushing an item onto the items array
