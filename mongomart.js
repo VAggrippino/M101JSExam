@@ -89,9 +89,6 @@ MongoClient.connect(`mongodb://localhost:27017/${dbName}`, (err, client) => {
     const searchItems = await items.searchItems(query, page, ITEMS_PER_PAGE);
     const itemCount = await items.getNumSearchItems(query);
 
-    console.log('Search Items: ')
-    console.log(searchItems);
-
     let numPages = 0;
     if (itemCount > ITEMS_PER_PAGE) {
       numPages = Math.ceil(itemCount / ITEMS_PER_PAGE);
