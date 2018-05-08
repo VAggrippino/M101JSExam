@@ -168,7 +168,7 @@ MongoClient.connect(`mongodb://localhost:27017/${dbName}`, (err, client) => {
 
   router.get('/user/:userId/cart', async (req, res) => {
     const { userId } = req.params;
-    const userCart = cart.getCart(userId);
+    const userCart = await cart.getCart(userId);
     const total = cartTotal(userCart);
     res.render(
       'cart',
