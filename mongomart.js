@@ -16,7 +16,6 @@ app.set('views', path.join(__dirname, '/views'));
 app.use('/static', express.static(path.join(__dirname, '/static')));
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
 /*
  Configure nunjucks to work with express Not using consolidate because I'm
  waiting on better support for template inheritance with nunjucks via
@@ -58,97 +57,94 @@ MongoClient.connect(`mongodb://localhost:27017/${dbName}`, (err, client) => {
   }
 
   // Homepage
-  router.get('/', (req, res) => {
+  router.get('/', async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page, 10) : 0;
     const category = req.query.category ? req.query.category : 'All';
 
-    // TODO: Fix callback hell here
-    items.getCategories((categories) => {
-      items.getItems(category, page, ITEMS_PER_PAGE, (pageItems) => {
-        items.getNumItems(category, (itemCount) => {
-          let numPages = 0;
+    const categories = await items.getCategories();
+    const pageItems = await items.getItems(category, page, ITEMS_PER_PAGE);
+    const itemCount = await items.getNumItems(category);
 
-          if (itemCount > ITEMS_PER_PAGE) {
-            numPages = Math.ceil(itemCount / ITEMS_PER_PAGE);
-          }
+    let numPages = 0;
 
-          res.render('home', {
-            category_param: category,
-            categories,
-            useRangeBasedPagination: false,
-            itemCount,
-            pages: numPages,
-            page,
-            items: pageItems,
-          });
-        });
-      });
+    if (itemCount > ITEMS_PER_PAGE) {
+      numPages = Math.ceil(itemCount / ITEMS_PER_PAGE);
+    }
+
+    res.render('home', {
+      category_param: category,
+      categories,
+      useRangeBasedPagination: false,
+      itemCount,
+      pages: numPages,
+      page,
+      items: pageItems,
     });
   });
 
-
-  router.get('/search', (req, res) => {
+  router.get('/search', async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page, 10) : 0;
     const query = req.query.query ? req.query.query : '';
 
-    items.searchItems(query, page, ITEMS_PER_PAGE, (searchItems) => {
-      items.getNumSearchItems(query, (itemCount) => {
-        let numPages = 0;
-        if (itemCount > ITEMS_PER_PAGE) {
-          numPages = Math.ceil(itemCount / ITEMS_PER_PAGE);
-        }
+    const searchItems = await items.searchItems(query, page, ITEMS_PER_PAGE);
+    const itemCount = await items.getNumSearchItems(query);
 
-        res.render('search', {
-          queryString: query,
-          itemCount,
-          pages: numPages,
-          page,
-          items: searchItems,
-        });
-      });
+    console.log('Search Items: ')
+    console.log(searchItems);
+
+    let numPages = 0;
+    if (itemCount > ITEMS_PER_PAGE) {
+      numPages = Math.ceil(itemCount / ITEMS_PER_PAGE);
+    }
+
+    res.render('search', {
+      queryString: query,
+      itemCount,
+      pages: numPages,
+      page,
+      items: searchItems,
     });
   });
 
-  router.get('/item/:itemId', (req, res) => {
+  router.get('/item/:itemId', async (req, res) => {
     const itemId = parseInt(req.params.itemId, 10);
+    const item = await items.getItem(itemId);
 
-    items.getItem(itemId, (item) => {
-      if (item == null) {
-        res.status(404).send('Item not found.');
-        return;
+    if (item == null) {
+      res.status(404).send('Item not found.');
+      return;
+    }
+
+    let stars = 0;
+    let numReviews = 0;
+    let reviews = [];
+
+    if ('reviews' in item) {
+      numReviews = item.reviews.length;
+
+      for (let i = 0; i < numReviews; i += 1) {
+        const review = item.reviews[i];
+        stars += review.stars;
       }
 
-      let stars = 0;
-      let numReviews = 0;
-      let reviews = [];
-
-      if ('reviews' in item) {
-        numReviews = item.reviews.length;
-
-        for (let i = 0; i < numReviews; i += 1) {
-          const review = item.reviews[i];
-          stars += review.stars;
-        }
-
-        if (numReviews > 0) {
-          stars /= numReviews;
-          ({ reviews } = item);
-        }
+      if (numReviews > 0) {
+        stars /= numReviews;
+        ({ reviews } = item);
       }
+    }
 
-      items.getRelatedItems((relatedItems) => {
-        res.render(
-          'item',
-          {
-            userId: USERID,
-            item,
-            stars,
-            reviews,
-            numReviews,
-            relatedItems,
-          },
-        );
-      });
+    items.getRelatedItems((relatedItems) => {
+      res.render(
+        'item',
+        {
+          userId: USERID,
+          item,
+          stars,
+          reviews,
+          numReviews,
+          relatedItems,
+        },
+      );
     });
   });
 
@@ -173,23 +169,20 @@ MongoClient.connect(`mongodb://localhost:27017/${dbName}`, (err, client) => {
     res.redirect(`/user/${USERID}/cart`);
   });
 
-
-  router.get('/user/:userId/cart', (req, res) => {
+  router.get('/user/:userId/cart', async (req, res) => {
     const { userId } = req.params;
-    cart.getCart(userId, (userCart) => {
-      const total = cartTotal(userCart);
-      res.render(
-        'cart',
-        {
-          userId,
-          updated: false,
-          cart: userCart,
-          total,
-        },
-      );
-    });
+    const userCart = cart.getCart(userId);
+    const total = cartTotal(userCart);
+    res.render(
+      'cart',
+      {
+        userId,
+        updated: false,
+        cart: userCart,
+        total,
+      },
+    );
   });
-
 
   router.post('/user/:userId/cart/items/:itemId', (req, res) => {
     const { userId } = req.params;

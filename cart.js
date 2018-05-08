@@ -19,15 +19,16 @@ const assert = require('assert');
 function CartDAO(db) {
   this.collection = db.collection('cart');
 
-  this.getCart = (userId, callback) => {
+  this.getCart = userId => new Promise((resolve, reject) => {
     const options = { projection: { userId: 1, items: 1, _id: 0 } };
     this.collection.findOne({ userId }, options)
-      .then(userCart => callback(userCart))
+      .then(userCart => resolve(userCart))
       .catch((error) => {
         console.error("An error occurred while retrieving users's cart data.");
         console.error(error);
+        reject(error);
       });
-  };
+  });
 
   this.itemInCart = (userId, itemId, callback) => {
     this.collection.findOne({ userId, 'items._id': itemId })

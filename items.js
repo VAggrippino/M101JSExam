@@ -19,9 +19,10 @@ const assert = require('assert');
 function ItemDAO(db) {
   this.collection = db.collection('item');
 
-  this.getCategories = (callback) => {
+  this.getCategories = () => new Promise((resolve, reject) => {
     const categories = [];
 
+    // Retrieve the groups and a count of products in each group
     this.collection.aggregate([
       {
         $group: {
@@ -32,33 +33,37 @@ function ItemDAO(db) {
     ])
       .toArray()
       .then((results) => {
+        // Count the total number of products
         const total = results.reduce((accumulator, category) => {
           categories.push(category);
           return accumulator + category.num;
         }, 0);
 
+        // Store the total number of products in an "All" category
         categories.push({ _id: 'All', num: total });
 
+        // Sort the categories
+        /* eslint-disable no-underscore-dangle */
         categories.sort((a, b) => {
-          /* eslint-disable no-underscore-dangle */
           if (a._id < b._id) {
             return -1;
           } else if (a._id > b._id) {
             return 1;
           }
-          /* eslint-enable */
           return 0;
         });
+        /* eslint-enable */
 
-        callback(categories);
+        resolve(categories);
       })
       .catch((error) => {
         console.error('An error occurred:');
         console.error(error.message);
+        reject(error);
       });
-  };
+  });
 
-  this.getItems = (category, page, itemsPerPage, callback) => {
+  this.getItems = (category, page, itemsPerPage) => new Promise((resolve, reject) => {
     const query = (category === 'All') ? {} : { category };
     const options = {
       limit: itemsPerPage,
@@ -68,20 +73,22 @@ function ItemDAO(db) {
 
     this.collection.find(query, options)
       .toArray()
-      .then(results => callback(results))
+      .then(results => resolve(results))
       .catch((error) => {
         console.error(`An error occurred while retrieving page items for ${category}.`);
         console.error(error.message);
+        reject(error);
       });
-  };
+  });
 
-  this.getNumItems = async (category, callback) => {
+  this.getNumItems = category => new Promise((resolve, reject) => {
     const match = (category === 'All') ? {} : { category };
-    const numItems = await this.collection.find(match).count();
-    return callback(numItems);
-  };
+    this.collection.find(match).count()
+      .then(numItems => resolve(numItems))
+      .catch(error => reject(error));
+  });
 
-  this.searchItems = (query, page, itemsPerPage, callback) => {
+  this.searchItems = (query, page, itemsPerPage) => new Promise((resolve, reject) => {
     const options = {
       limit: itemsPerPage,
       skip: page * itemsPerPage,
@@ -89,26 +96,30 @@ function ItemDAO(db) {
     };
 
     this.collection.findOne({ $text: { $search: query } }, options)
-      .then(results => callback(results))
+      .then(searchItems => resolve(searchItems))
       .catch((error) => {
         console.error('An error occurred while searching records.');
-        console.error(error.message);
+        console.error(error);
+        reject(error);
       });
-  };
+  });
 
-  this.getNumSearchItems = async (query, callback) => {
-    const numItems = await this.collection.find({ $text: { $search: query } }).count();
-    return callback(numItems);
-  };
+  this.getNumSearchItems = query => new Promise((resolve, reject) => {
+    this.collection.find({ $text: { $search: query } })
+      .count()
+      .then(numItems => resolve(numItems))
+      .catch(error => reject(error));
+  });
 
-  this.getItem = (itemId, callback) => {
+  this.getItem = itemId => new Promise((resolve, reject) => {
     this.collection.findOne({ _id: itemId })
-      .then(results => callback(results))
+      .then(item => resolve(item))
       .catch((error) => {
         console.error(`An error occurred when retrieving item ${itemId}`);
         console.error(error);
+        reject(error);
       });
-  };
+  });
 
   this.getRelatedItems = (callback) => {
     this.collection.find({})
