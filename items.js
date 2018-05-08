@@ -95,7 +95,8 @@ function ItemDAO(db) {
       sort: { _id: 1 },
     };
 
-    this.collection.findOne({ $text: { $search: query } }, options)
+    this.collection.find({ $text: { $search: query } }, options)
+      .toArray()
       .then(searchItems => resolve(searchItems))
       .catch((error) => {
         console.error('An error occurred while searching records.');
